@@ -1,0 +1,158 @@
+import { useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+
+function Main() {
+  const location = useLocation();
+  const user = location.state?.user; // Get user data from navigation state
+  const [transactions, setTransactions] = useState([]);
+  const [balance, setBalance] = useState(user?.balance || 0);
+  const [amount, setAmount] = useState(""); // Stores entered amount
+
+  // Fetch transactions when component mounts
+  useEffect(() => {
+    if (user?.accountNumber) {
+      fetch(`http://localhost:8080/api/transactions/${user.accountNumber}`)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Failed to fetch transactions");
+          }
+          return response.json();
+        })
+        .then((data) => {
+          console.log("Transactions:", data);
+          setTransactions(data);
+        })
+        .catch((error) => console.error(error.message));
+    }
+  }, [user?.accountNumber]);
+
+  if (!user) {
+    return <h1 className="text-center text-red-500 font-bold">No user data found. Please login again.</h1>;
+  }
+
+  // Function to handle deposit
+  const handleDeposit = () => {
+    if (!amount || amount <= 0) {
+      alert("Enter a valid deposit amount");
+      return;
+    }
+
+    fetch(`http://localhost:8080/api/transactions/deposit/${user.accountNumber}?amount=${amount}`, {
+      method: "POST",
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to deposit amount");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log("Deposit successful:", data);
+        setBalance(data.balance); // Update balance
+        setTransactions((prev) => [data, ...prev]); // Add new transaction
+      })
+      .catch((error) => alert(error.message));
+  };
+
+  // Function to handle withdrawal
+  const handleWithdraw = () => {
+    if (!amount || amount <= 0) {
+      alert("Enter a valid withdrawal amount");
+      return;
+    }
+
+    fetch(`http://localhost:8080/api/transactions/withdraw/${user.accountNumber}?amount=${amount}`, {
+      method: "POST",
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to withdraw amount");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log("Withdrawal successful:", data);
+        setBalance(data.balance); // Update balance
+        setTransactions((prev) => [data, ...prev]); // Add new transaction
+      })
+      .catch((error) => alert(error.message));
+  };
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen p-2">
+      {/* User Information & Transaction Details Section */}
+      <div className="flex w-full max-w-7xl space-x-4">
+        {/* User Information */}
+        <div className="p-6 rounded-lg w-2/3 bg-amber-50 shadow-md">
+          <h1 className="text-xl font-bold mb-4">User Information</h1>
+          <div className="text-lg">UserName: {user.accountHolderName}</div>
+          <div className="text-lg">UserAccountNumber: {user.accountNumber}</div>
+          <div className="text-lg">UserBalance: ₹{balance}</div>
+        </div>
+
+        {/* User Transaction Details */}
+        <div className="p-6 rounded-lg w-2/3 bg-amber-50 shadow-md">
+         <h1 className="text-xl font-bold mb-4 text-center">Services</h1>
+         <div className="flex space-x-4 text-center items-center justify-center">
+          {/* Input Field */}
+          <input
+            type="number"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            className="border border-gray-300 rounded p-2 w-1/3"
+            placeholder="Enter amount"
+          />
+
+          {/* Add Amount */}
+          <button 
+            onClick={handleDeposit}
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          >
+            Deposit
+          </button>
+
+          {/* Withdraw Amount */}
+          <button 
+            onClick={handleWithdraw}
+            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+          >
+            Withdraw
+          </button>
+        </div>
+        </div>
+      </div>
+
+      {/* Services Section */}
+      <div className="w-full max-w-7xl p-6 mt-6 bg-amber-50 rounded-lg shadow-md">
+  <h1 className="text-xl font-bold mb-4 text-center">Transaction History</h1>
+
+  {transactions.length > 0 ? (
+    <table className="w-full border-collapse border border-gray-300">
+      <thead>
+        <tr className="bg-gray-200">
+          <th className="border border-gray-300 px-4 py-2">Date</th>
+          <th className="border border-gray-300 px-4 py-2">Deposit</th>
+          <th className="border border-gray-300 px-4 py-2">Withdraw</th>
+          <th className="border border-gray-300 px-4 py-2">Balance After</th>
+        </tr>
+      </thead>
+      <tbody>
+        {transactions.map((txn, index) => (
+          <tr key={index} className="text-center">
+            <td className="border border-gray-300 px-4 py-2">{new Date(txn.dateTime).toLocaleString()}</td>
+            <td className="border border-gray-300 px-4 py-2">₹{txn.depositAmount}</td>
+            <td className="border border-gray-300 px-4 py-2">₹{txn.withdrawAmount}</td>
+            <td className="border border-gray-300 px-4 py-2">₹{txn.balance}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  ) : (
+    <p className="text-center text-red-500">No transactions found.</p>
+  )}
+</div>
+    </div>
+  );
+}
+
+export default Main;
