@@ -79,15 +79,15 @@ function Main() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-2">
+    <div className="flex flex-col items-center justify-center min-h-screen p-2 back-img-main">
       {/* User Information & Transaction Details Section */}
       <div className="flex w-full max-w-7xl space-x-4">
         {/* User Information */}
         <div className="p-6 rounded-lg w-2/3 bg-amber-50 shadow-md">
-          <h1 className="text-xl font-bold mb-4">User Information</h1>
-          <div className="text-lg">UserName: {user.accountHolderName}</div>
-          <div className="text-lg">UserAccountNumber: {user.accountNumber}</div>
-          <div className="text-lg">UserBalance: ₹{balance}</div>
+          <h1 className="text-xl font-bold mb-4 flex items-center justify-center">User Details</h1>
+          <div className="text-lg"><span className="font-bold">Name</span>: {user.accountHolderName}</div>
+          <div className="text-lg"><span className="font-bold">Account Number</span>: {user.accountNumber}</div>
+          <div className="text-lg"><span className="font-bold">Balance</span>: ₹{balance}</div>
         </div>
 
         {/* User Transaction Details */}
@@ -108,7 +108,7 @@ function Main() {
             onClick={handleDeposit}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
           >
-            Deposit
+            <span className="font-bold">Deposit</span>
           </button>
 
           {/* Withdraw Amount */}
@@ -116,7 +116,7 @@ function Main() {
             onClick={handleWithdraw}
             className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
           >
-            Withdraw
+            <span className="font-bold">Withdraw</span>
           </button>
         </div>
         </div>

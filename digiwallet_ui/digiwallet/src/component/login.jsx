@@ -5,7 +5,8 @@ import { useNavigate } from "react-router-dom";
 function Login() {
   const { register, handleSubmit } = useForm();
   const [message, setMessage] = useState("");
-  const navigate = useNavigate(); // Hook for navigation
+  const [messageType, setMessageType] = useState(""); 
+  const navigate = useNavigate(); 
 
   const onSubmit = async (data) => {
     try {
@@ -14,46 +15,54 @@ function Login() {
         headers: { "Content-Type": "application/json" },
       });
 
-      console.log("Raw Response:", response); // Logs the raw response
+      console.log("Raw Response:", response);
 
       if (!response.ok) {
-        throw new Error("Invalid credentials or account not found");
+        throw new Error("Invalid credentials or Account not found");
       }
 
-      const result = await response.json(); // Expect JSON response
+      const result = await response.json();
+      setMessage("Login successful!!");
+      setMessageType("success");
 
-      console.log("Response JSON:", result); // Logs the entire JSON response
-
-      // Redirect to Main page and pass user data as state
-      navigate("/main", { state: { user: result } });
-
+      setTimeout(() => navigate("/main", { state: { user: result } }), 1000);
+      
     } catch (error) {
       setMessage(error.message);
+      setMessageType("error");
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="w-full max-w-md p-6 shadow-md rounded-lg bg-amber-50">
+    <div className="flex items-center justify-center min-h-screen back-img">
+      <div className="w-full max-w-md p-6 shadow-md rounded-3xl bg-amber-50">
         <h2 className="text-2xl font-bold mb-4 text-center">Login</h2>
-        {message && <p className="text-center text-red-500">{message}</p>}
+
+        {message && (
+          <p className={`p-2 text-center rounded ${messageType === "success" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+            {message}
+          </p>
+        )}
+
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
             <label className="block font-semibold">Account Number</label>
             <input
               type="text"
-              {...register("accountNumber", { required: true })}
+              {...register("accountNumber", { required: "Account Number is required" })}
               className="w-full p-2 border rounded"
             />
           </div>
+
           <div>
             <label className="block font-semibold">Password</label>
             <input
               type="password"
-              {...register("password", { required: true })}
+              {...register("password", { required: "Password is required" })}
               className="w-full p-2 border rounded"
             />
           </div>
+
           <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
             Login
           </button>

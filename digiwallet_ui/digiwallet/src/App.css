@@ -1,4 +1,14 @@
 @import "tailwindcss";
-body{
-  background-color: black !important;
+
+.back-img {
+  background-image: url("/public/pexels-pavel-danilyuk-6612717.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.back-img-register,.back-img-main{
+  background-image: url("/public/pexels-codioful-7135028.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
